@@ -95,7 +95,7 @@ void parseSerial(){
       case 'a': // a for attack
         s_attack = Serial.parseFloat();
         break;
-      case 'f': // f for fixed value
+      case 'f': // f for forced value
         STATIC_PWM = Serial.parseInt();
       default:
         break;
