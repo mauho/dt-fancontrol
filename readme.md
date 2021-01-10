@@ -14,7 +14,7 @@ In this version I work with NTC Thermistors which each create a voltage divider 
 Easy to write in words. More of a challenge to actually get it done
 1. Read the temperature of the ambient air and the cooling water
 2. Get the temperature difference (deltaT)
-3. Set a PWM value based on deltaT with the help of the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)  $y=\dfrac{1}{1+e^{-x}}$
+3. Set a PWM value based on deltaT with the help of the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
 
 ## Example on geogebra
 In this folder you  also find a "geogebra-export.ggb" file. You can open the [geogebra calculator](https://www.geogebra.org/calculator) and then load the file by dragging it into the browser window.
