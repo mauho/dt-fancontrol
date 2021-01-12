@@ -2,41 +2,33 @@
 
 #define R 10000   // R = 10KΩ -> voltage divider resistance
 
-// Functions
-float readTemp(int analogPin, int BValue);
-byte getTargetPWM(float dt);
-void setPwmDuty(byte duty);
-float readVcc();
-
 // Constants
-const byte OC1A_PIN = 9;   // first Fan to controll
-//const byte OC1B_PIN = 10;  // second fan to controll
+const byte OC1A_PIN = 9; // PWM Pin for fan to controll
 const word PWM_FREQ_HZ = 25000; //Adjust this value to adjust the frequency
 const word TCNT1_TOP = 16000000 / (2 * PWM_FREQ_HZ);
 
 // Variables
 float RT, VR, ln, TX, T0, VRT, sExp, sRad, sAmb, deltaT, VCC;
-float s_max, s_slope, s_attack, s_min; // sigmoid variables
-byte pwm;
-int readCount, STATIC_PWM;
+float s_slope, s_attack; // sigmoid variables
+byte  s_min, s_max, pwm, STATIC_PWM;
+int   readCount;
 
 void setup() {
-  // Sensors
+  Serial.begin(57600);
+
+  readCount = 727;   // (r) number of readings prior to calculate and send PWM signal and data
+  
+  // Temperature Settings
   pinMode(1, INPUT); // Sensor water temperature
   pinMode(2, INPUT); // Sensor ambient temperature
-
-  // Default number of readings prior to calculate and send PWM signal and data
-  readCount = 727;
-
-  // Default sigmoid parameters - see https://www.geogebra.org/calculator with file in project folder for visualization
-  s_max = 90;     // maximum PWM level to be reached 
-  s_min = 0;      // minimum PWM level lift in order to prevent fans from stopping (changes with v)
-  s_slope = -0.6; // slope -> how big deltaT has to be to reach a cerain pwm level
-  s_attack = 5.0; // how far the sigmoid function is shifted to the right
-
-  Serial.begin(57600);
   T0 = 25 + 273.15;  // Temperature T0 from datasheet, conversion from Celsius to kelvin
-
+  
+  // Default sigmoid parameters - see https://www.geogebra.org/calculator with file in project folder for visualization
+  s_max = 90;        // (t) maximum PWM level to be reached.
+  s_min = 0;         // (l) minimum PWM level lift in order to prevent fans from stopping
+  s_slope = -0.6;    // (s) slope -> how big deltaT has to be to reach a cerain pwm level
+  s_attack = 5.0;    // (a) how far the sigmoid function is shifted to the right
+  
   // PWM Settings
   pinMode(OC1A_PIN, OUTPUT);
   TCCR1A = 0;
@@ -48,18 +40,16 @@ void setup() {
 }
 
 void loop() {
-  // Check if commands were sent
-  parseSerial();  
+  parseSerial();  // Check if commands were sent
 
-  // Read temperatures
   sRad = readNTCTemp(1, 3976);
   sAmb = readNTCTemp(2, 3976);
-
+  deltaT = sRad - sAmb;
+  
   // Calculate deltaT and set PWM acordingly
   if (STATIC_PWM > 0){
     pwm = STATIC_PWM;
   } else {
-    deltaT = (sRad - sAmb);
     pwm = getTargetPWM(deltaT);
   }
  
@@ -87,7 +77,7 @@ void parseSerial(){
         s_max = Serial.parseInt();
         break;
       case 'l': // l for lift
-        s_min = Serial.parseFloat();
+        s_min = Serial.parseInt();
         break;
       case 's': // s for slope
         s_slope = Serial.parseFloat();
@@ -105,17 +95,17 @@ void parseSerial(){
 
 // read Temperatures based on NTC Resistors
 // https://www.electronics-tutorials.ws/io/thermistors.html
-float readNTCTemp(int analogPin, int BValue) {
+float readNTCTemp(int sensorPin, int BValue) {
   float sum = 0;
   VCC = readVcc();
   for (int i = 0; i < readCount; i++) {
-    VRT = analogRead(analogPin);      //Acquisition analog value of VRT
-    VRT = (VCC / 1023) * VRT;         //Conversion to voltage
+    VRT = analogRead(sensorPin);  //Acquisition analog value of VRT
+    VRT = (VCC / 1023) * VRT;     //Conversion to voltage
     VR = VCC - VRT;
-    RT = VRT / (VR / R);              //Resistance of RT
+    RT = VRT / (VR / R);          //Resistance of RT
     ln = log(RT / R);
     TX = (1 / ((ln / BValue) + (1 / T0))); //Temperature from thermistor
-    TX = TX - 273.15;                 //Conversion to Celsius
+    TX = TX - 273.15;             //Conversion to Celsius
     sum += TX;
   }
   return sum / readCount;
@@ -124,8 +114,8 @@ float readNTCTemp(int analogPin, int BValue) {
 // Read Board VCC based on internal 1.1v reference
 // Source https://www.bjoerns-techblog.de/2019/11/spannung-messen-mit-dem-arduino-promini/
 float readVcc() {
-  long result;                        // Read 1.1V reference against AVcc
-  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  long result;                        
+  ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);  // Read 1.1V reference against AVcc
   delay(3);                           // Wait for Vref to settle
   ADCSRA |= _BV(ADSC);                // Convert
   while (bit_is_set(ADCSRA, ADSC));
