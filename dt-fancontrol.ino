@@ -1,5 +1,5 @@
 // PWM Controll - https://create.arduino.cc/projecthub/tylerpeppy/25-khz-4-pin-pwm-fan-control-with-arduino-uno-3005a1
-
+#include <Arduino.h>
 #define R 10000   // R = 10KΩ -> voltage divider resistance
 
 // Constants
