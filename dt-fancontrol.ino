@@ -10,13 +10,13 @@ const word TCNT1_TOP = 16000000 / (2 * PWM_FREQ_HZ);
 // Variables
 float RT, VR, ln, TX, T0, VRT, sExp, sRad, sAmb, deltaT, VCC;
 float s_slope, s_attack; // sigmoid variables
-byte  s_min, s_max, pwm, STATIC_PWM;
-int   readCount;
+byte  pwm, STATIC_PWM;
+int   s_min, s_max, readCount;
 
 void setup() {
   Serial.begin(57600);
 
-  readCount = 727;   // (r) number of readings prior to calculate and send PWM signal and data
+  readCount = 419;   // (r) number of readings prior to calculate and send PWM signal and data
   
   // Temperature Settings
   pinMode(1, INPUT); // Sensor water temperature
@@ -24,10 +24,10 @@ void setup() {
   T0 = 25 + 273.15;  // Temperature T0 from datasheet, conversion from Celsius to kelvin
   
   // Default sigmoid parameters - see https://www.geogebra.org/calculator with file in project folder for visualization
-  s_max = 90;        // (t) maximum PWM level to be reached.
-  s_min = 0;         // (l) minimum PWM level lift in order to prevent fans from stopping
-  s_slope = -0.6;    // (s) slope -> how big deltaT has to be to reach a cerain pwm level
-  s_attack = 5.0;    // (a) how far the sigmoid function is shifted to the right
+  s_max = 89;        // (t) maximum PWM level to be reached.
+  s_min = 1;         // (l) minimum PWM level lift in order to prevent fans from stopping
+  s_slope = -0.43;   // (s) slope -> how big deltaT has to be to reach a cerain pwm level
+  s_attack = 5.71;   // (a) how far the sigmoid function is shifted to the right
   
   // PWM Settings
   pinMode(OC1A_PIN, OUTPUT);
@@ -87,6 +87,19 @@ void parseSerial(){
         break;
       case 'f': // f for forced value
         STATIC_PWM = Serial.parseInt();
+        break;
+      case 'x': // x for multiple values from python
+        String str = Serial.readString();
+        int n = str.length();
+        char buff[n + 1];
+        strcpy(buff, str.c_str());
+        //Serial.println(buff);
+        int temp1;
+        int temp2;
+        sscanf(buff, "%d %d %d %d", &s_min, &s_max, &temp1, &temp2);
+        s_slope = (float(temp1)/100.0);
+        s_attack = (float(temp2)/100.0);
+        break;
       default:
         break;
     }
@@ -127,7 +140,8 @@ float readVcc() {
 
 // Calculate target PWM cycle based on Sigmoid function
 byte getTargetPWM(float deltaTemp) {
-  byte targetPWM = s_max * ((1 - (s_min / s_max)) / (1 + pow(2.71828, (s_slope * deltaTemp + s_attack))) + (s_min / s_max));
+  //byte targetPWM = (s_max * ((1 - (s_min / s_max)) / (1 + pow(2.71828, ((s_slope * deltaTemp) + s_attack))) + (s_min / s_max)));
+  byte targetPWM = s_max * ((1 - (float(s_min) / float(s_max))) / (1 + pow(2.718, (s_slope * deltaTemp + s_attack))) + float(s_min) / float(s_max));
   return targetPWM;
 }
 
