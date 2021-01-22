@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 # TODO: beautify code
@@ -48,7 +48,7 @@ def serial_listener():
     try:
         serial_port = serial.Serial('COM3', 57600)
         print(f"The Port name is {serial_port.name}")
-        statusbarleft.config(text='Connected')
+        status_left.config(text='Connected')
         connected = True
         while connected:
             if sendingData:
@@ -67,11 +67,10 @@ def serial_listener():
                 pwm = float(val[3])
                 dT = (rad-amb)
 
-                statusbarright.config(text='air: {}°C  h2o: {}°C  dt: {}°C - pwm: {}%'.format(("%.1f" % amb), ("%.1f" % rad), ("%.1f" % dT), pwm))
-
+                status_right.config(text='air: {}°C  h2o: {}°C  dt: {}°C - pwm: {}%'.format(("%.1f" % amb), ("%.1f" % rad), ("%.1f" % dT), pwm))
 
         serial_port.close()
-        statusbarright.config(text=' ')
+        status_right.config(text=' ')
         serial_thread = None
         dT = 0.0
         print("disconnected")
@@ -80,8 +79,8 @@ def serial_listener():
         connected = False
         serial_thread.raise_exception()
         serial_thread.join()
-        statusbarleft.config(text='Not connected')
-        statusbarright.config(text=' ')
+        status_left.config(text='Not connected')
+        status_right.config(text=' ')
         serial_thread = None
         print("Serial Error")
         print("check connection")
@@ -168,7 +167,8 @@ def connect_disconnect():
     global serial_thread
     if connected:
         connected = False
-        statusbarleft.config(text='Not connected')
+        status_left.config(text='Not connected')
+        connectButton.config(text='Connect')
     else:
         serial_thread = threading.Thread(target=serial_listener)
         serial_thread.start()
@@ -222,10 +222,10 @@ connectButton.grid(row=6, column=0)
 sendButton = Button(master, text="-> Arduino", command=send_values, width=13)
 sendButton.grid(row=6, column=1)
 
-statusbarleft = Label(master, text="Not connected ", bd=1)
-statusbarleft.grid(row=7, column=0)
-statusbarright= Label(master, text="", bd=1)
-statusbarright.grid(row=7, column=1)
+status_left = Label(master, text="Not connected ", bd=1)
+status_left.grid(row=7, column=0)
+status_right= Label(master, text="", bd=1)
+status_right.grid(row=7, column=1)
 draw_function()
 
 master.mainloop()
