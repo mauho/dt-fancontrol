@@ -16,7 +16,7 @@ int   s_min, s_max, readCount;
 void setup() {
   Serial.begin(57600);
 
-  readCount = 419;   // (r) number of readings prior to calculate and send PWM signal and data
+  readCount = 727;   // (r) number of readings prior to calculate and send PWM signal and data
   
   // Temperature Settings
   pinMode(1, INPUT); // Sensor water temperature
@@ -96,7 +96,7 @@ void parseSerial(){
         //Serial.println(buff);
         int temp1;
         int temp2;
-        sscanf(buff, "%d %d %d %d", &s_min, &s_max, &temp1, &temp2);
+        sscanf(buff, "%d %d %d %d", &s_min, &s_max, &temp1, &temp2); //sending Data: x15 89 -49 573
         s_slope = (float(temp1)/100.0);
         s_attack = (float(temp2)/100.0);
         break;
