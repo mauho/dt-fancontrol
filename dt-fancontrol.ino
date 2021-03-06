@@ -25,7 +25,7 @@ int   s_min, s_max, readCount;
 void setup() {
   Serial.begin(57600);
   u8g2.begin();
-  u8g2.setBusClock(500000);
+  u8g2.setBusClock(400000);
 
   pinMode(1, INPUT); // Sensor water temperature
   pinMode(2, INPUT); // Sensor ambient temperature
@@ -35,10 +35,10 @@ void setup() {
   readCount = 631;
 
   // Default sigmoid parameters - see https://www.geogebra.org/calculator with file in project folder for visualization
-  s_min = 15;     // minimum PWM level lift in order to prevent fans from stopping (changes with v)
-  s_max = 90;     // maximum PWM level to be reached
-  s_slope = -0.5; // slope -> how big deltaT has to be to reach a cerain pwm level
-  s_attack = 5.7; // how far the sigmoid function is shifted to the right
+  s_min = 18;     // minimum PWM level lift in order to prevent fans from stopping (changes with v)
+  s_max = 100;    // maximum PWM level to be reached
+  s_slope = -0.4; // slope -> how big deltaT has to be to reach a cerain pwm level
+  s_attack = 6.0; // how far the sigmoid function is shifted to the right
 
   T0 = 25 + 273.15;  // Temperature T0 from datasheet, conversion from Celsius to kelvin
 
