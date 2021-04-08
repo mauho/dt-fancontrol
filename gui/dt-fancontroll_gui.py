@@ -156,10 +156,10 @@ def draw_line():
 
 
 def reset_values():
-    s_min_var.set(1)
-    s_max_var.set(89)
-    s_slope_var.set(-0.43)
-    s_attack_var.set(5.71)
+    s_min_var.set(18)
+    s_max_var.set(100)
+    s_slope_var.set(-0.40)
+    s_attack_var.set(6.0)
     update_slider_labels(None)
 
 
