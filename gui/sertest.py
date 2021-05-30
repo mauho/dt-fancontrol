@@ -4,6 +4,8 @@
 import serial
 
 connected = False
+
+
 def serial_listener():
     global connected
     try:
@@ -17,5 +19,6 @@ def serial_listener():
 
     except serial.SerialException:
         print("Serial Error")
+
 
 serial_listener()
