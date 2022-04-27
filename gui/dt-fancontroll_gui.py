@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
+import json
 import threading
 import time
 import math
@@ -15,6 +15,7 @@ from get_serial_ports import *
 
 master = Tk()
 master.title('dT-FanControl')
+master.resizable(False, False)
 
 s_min_var = IntVar()
 s_max_var = IntVar()
@@ -26,7 +27,17 @@ s_max_var.set(100)
 s_slope_var.set(-0.40)
 s_attack_var.set(6.0)
 
-x = np.arange(0., 35., 0.2)
+try:
+    with open('last_values.json') as json_file:
+        last_values = json.load(json_file)
+        s_min_var.set(last_values['s_min'])
+        s_max_var.set(last_values['s_max'])
+        s_slope_var.set(last_values['s_slope'])
+        s_attack_var.set(last_values['s_attack'])
+except FileNotFoundError:
+    print("There were no values saved - using default values")
+
+x = np.arange(0., 40., 0.2)
 
 rad = 0.0
 amb = 0.0
@@ -56,8 +67,8 @@ def serial_listener():
         connected = True
         while connected:
             if sendingData:
-                text = 'x{} {} {} {}\n'.format(s_min_var.get(), s_max_var.get(), int(s_slope_var.get()*100),
-                                               int(s_attack_var.get()*100))
+                text = 'x{} {} {} {}\n'.format(s_min_var.get(), s_max_var.get(), int(s_slope_var.get() * 100),
+                                               int(s_attack_var.get() * 100))
                 print('sending Data: {}'.format(text))
                 serial_port.write(text.encode())
                 time.sleep(0.8)
@@ -70,7 +81,7 @@ def serial_listener():
                 rad = float(val[0])
                 amb = float(val[1])
                 pwm = float(val[3])
-                dT = (rad-amb)
+                dT = (rad - amb)
 
                 status_right.config(text='air: {}°C  h2o: {}°C  dt: {}°C - pwm: {}%'
                                     .format(("%.1f" % amb), ("%.1f" % rad), ("%.1f" % dT), pwm))
@@ -127,7 +138,7 @@ def draw_function():
     sig = sigmoid_array(x)
 
     ax.set_ylim([-5, 105])
-    ax.set_xlim([0, 30])
+    ax.set_xlim([0, 40])
     ax.set_ylabel("% PWM")
     ax.set_xlabel("delta Temperature")
     ax.set_title('Resulting Sigmoid Function ')
@@ -163,9 +174,19 @@ def reset_values():
     update_slider_labels(None)
 
 
+def save_json():
+    data = {'s_min': s_min_var.get(),
+            's_max': s_max_var.get(),
+            's_slope': s_slope_var.get(),
+            's_attack': s_attack_var.get()}
+    with open('last_values.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+
 def send_values():
     global sendingData
     sendingData = True
+    save_json()
 
 
 def connect_disconnect():
