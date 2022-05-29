@@ -8,10 +8,11 @@ import numpy as np
 
 from tkinter import *
 
+import serial
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-from get_serial_ports import *
+from get_serial_ports import get_serial_ports
 
 master = Tk()
 master.title('dT-FanControl')
@@ -221,11 +222,11 @@ s_max_label = Label(master, bg='white', fg='black', width=20, text='max %: ' + s
 s_slope_label = Label(master, bg='white', fg='black', width=20, text='slope: ' + str(s_slope_var.get()))
 s_attack_label = Label(master, bg='white', fg='black', width=20, text='attack: ' + str(s_attack_var.get()))
 
-s_min_scale = Scale(master, from_=0, to=20, orient=HORIZONTAL, length=255, showvalue=0,
+s_min_scale = Scale(master, from_=0, to=50, orient=HORIZONTAL, length=255, showvalue=0,
                     resolution=0.01, command=update_slider_labels, variable=s_min_var)
 s_max_scale = Scale(master, from_=50, to=100, orient=HORIZONTAL, length=255, showvalue=0,
                     resolution=0.01, command=update_slider_labels, variable=s_max_var)
-s_slope_scale = Scale(master, from_=-1, to=-0.2, orient=HORIZONTAL, length=255, showvalue=0,
+s_slope_scale = Scale(master, from_=-1, to=-0.3, orient=HORIZONTAL, length=255, showvalue=0,
                       resolution=0.01, command=update_slider_labels, variable=s_slope_var)
 s_attack_scale = Scale(master, from_=3, to=7, orient=HORIZONTAL, length=255, showvalue=0,
                        resolution=0.01, command=update_slider_labels, variable=s_attack_var)
