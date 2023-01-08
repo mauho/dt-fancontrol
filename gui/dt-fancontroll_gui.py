@@ -23,10 +23,10 @@ s_max_var = IntVar()
 s_slope_var = DoubleVar()
 s_attack_var = DoubleVar()
 
-s_min_var.set(18)
+s_min_var.set(30)
 s_max_var.set(100)
-s_slope_var.set(-0.40)
-s_attack_var.set(6.0)
+s_slope_var.set(-0.44)
+s_attack_var.set(5.46)
 
 try:
     with open('last_values.json') as json_file:
@@ -38,7 +38,7 @@ try:
 except FileNotFoundError:
     print("There were no values saved - using default values")
 
-x = np.arange(0., 40., 0.2)
+x = np.arange(0., 30., 0.2)
 
 rad = 0.0
 amb = 0.0
@@ -139,7 +139,7 @@ def draw_function():
     sig = sigmoid_array(x)
 
     ax.set_ylim([-5, 105])
-    ax.set_xlim([0, 40])
+    ax.set_xlim([0, 30])
     ax.set_ylabel("% PWM")
     ax.set_xlabel("delta Temperature")
     ax.set_title('Resulting Sigmoid Function ')
@@ -168,10 +168,10 @@ def draw_line():
 
 
 def reset_values():
-    s_min_var.set(1)
-    s_max_var.set(89)
-    s_slope_var.set(-0.43)
-    s_attack_var.set(5.71)
+    s_min_var.set(30)
+    s_max_var.set(100)
+    s_slope_var.set(-0.44)
+    s_attack_var.set(5.46)
     update_slider_labels(None)
 
 
@@ -228,7 +228,7 @@ s_max_scale = Scale(master, from_=50, to=100, orient=HORIZONTAL, length=255, sho
                     resolution=0.01, command=update_slider_labels, variable=s_max_var)
 s_slope_scale = Scale(master, from_=-1, to=-0.3, orient=HORIZONTAL, length=255, showvalue=0,
                       resolution=0.01, command=update_slider_labels, variable=s_slope_var)
-s_attack_scale = Scale(master, from_=3, to=7, orient=HORIZONTAL, length=255, showvalue=0,
+s_attack_scale = Scale(master, from_=3, to=6, orient=HORIZONTAL, length=255, showvalue=0,
                        resolution=0.01, command=update_slider_labels, variable=s_attack_var)
 
 s_min_label.grid(row=0, column=0)
